@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Học Viên — MASTER.AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* CSS Reset and Variables */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #07071A;
+  --bg2: #0D0D24;
+  --card: #111127;
+  --card2: #16162F;
+  --border: rgba(99,102,241,.15);
+  --border2: rgba(99,102,241,.3);
+  --primary: #FFA000;
+  --p: #6366F1;
+  --pl: #818CF8;
+  --text-main: #FFFFFF;
+  --text-muted: #94A3B8;
+  --text-dark: #CBD5E1;
+  --grad: linear-gradient(135deg, #6366F1, #8B5CF6);
+  --danger: #EF4444;
+  --success: #10B981;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+/* Header */
+.header {
+  height: 64px;
+  background-color: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--grad);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  font-size: 16px; color: #fff;
+}
+.logo span.ai { color: var(--pl); }
+.nav-menu { display: flex; align-items: center; gap: 24px; }
+.nav-item {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+.nav-item:hover, .nav-item.active {
+  color: var(--text-main);
+  background: rgba(99,102,241,.1);
+}
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  transition: 0.2s;
+}
+.user-menu:hover { border-color: var(--border2); }
+.user-avatar {
+  width: 32px; height: 32px;
+  background: var(--grad);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+}
+.user-name { font-size: 14px; font-weight: 600; }
+.admin-toggle {
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.3);
+  color: var(--danger);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+}
+.admin-toggle.active {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+.view-container { display: none; }
+.view-container.show { display: block; }
+
+/* Grid Courses (View 1) */
+.page-title {
+  font-size: 24px; font-weight: 700;
+  margin-bottom: 24px;
+}
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+.course-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: 0.2s;
+}
+.course-card:hover { border-color: var(--border2); transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+.course-thumb {
+  width: 100%; height: 180px;
+  background: var(--card2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 50px;
+  border-bottom: 1px solid var(--border);
+}
+.course-body { padding: 20px; }
+.course-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; line-height: 1.4; }
+.course-instructor { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+.course-progress-wrap { margin-bottom: 16px; }
+.progress-bar { height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+.progress-fill { height: 100%; background: var(--success); border-radius: 3px; }
+.progress-text { font-size: 12px; font-weight: 600; color: var(--success); }
+.btn-enter {
+  width: 100%;
+  padding: 10px;
+  background: var(--primary);
+  color: #000;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-enter:hover { background: #FFB020; }
+
+/* Lesson View (View 2) */
+.lesson-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.video-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+.video-player {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.video-player iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.lesson-info { padding: 24px; }
+.lesson-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.lesson-desc { font-size: 14px; color: var(--text-dark); line-height: 1.6; }
+
+/* Materials */
+.materials-section { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
+.section-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.materials-title { font-size: 16px; font-weight: 700; }
+.materials-list { display: flex; flex-direction: column; gap: 10px; }
+.material-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--card2);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.mat-info { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; }
+.mat-icon { font-size: 20px; }
+.btn-outline {
+  padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border2);
+  background: transparent; color: var(--text-main); font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; text-decoration: none; display: inline-block;
+}
+.btn-outline:hover { background: rgba(99,102,241,.1); border-color: var(--pl); }
+
+/* Playlist Sidebar */
+.playlist-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  position: sticky;
+  top: 88px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+.playlist-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700; font-size: 16px;
+}
+.chapter-block { border-bottom: 1px solid var(--border); }
+.chapter-head {
+  padding: 14px 20px;
+  font-size: 14px; font-weight: 700;
+  background: var(--bg2);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.lesson-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px 12px 32px;
+  font-size: 13px; color: var(--text-muted);
+  cursor: pointer; transition: 0.2s;
+}
+.lesson-item:hover { background: rgba(99,102,241,.05); color: var(--text-main); }
+.lesson-item.active { background: rgba(99,102,241,.1); color: var(--pl); font-weight: 600; border-left: 3px solid var(--pl); }
+.lesson-duration { font-size: 11px; }
+
+/* Admin Controls */
+.admin-control { display: none; }
+body.admin-mode .admin-control { display: inline-flex; }
+
+.btn-admin {
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.3);
+  color: var(--danger);
+  padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;
+}
+.btn-admin.blue { background: rgba(99,102,241,.1); border-color: var(--border2); color: var(--pl); }
+
+/* Profile (View 3) */
+.profile-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 24px; }
+.profile-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+.info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.info-row:last-child { border: none; }
+.info-label { color: var(--text-muted); }
+.info-val { font-weight: 600; }
+.badge { background: var(--grad); color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+.history-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px; background: var(--card2); border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border);
+}
+
+@media(max-width: 900px){
+  .lesson-layout { grid-template-columns: 1fr; }
+  .profile-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo" onclick="switchView('courses')">
+    <div class="logo-icon">⚡</div>
+    <span>MASTER <span class="ai">.AI</span></span>
+  </div>
+  <div class="nav-menu">
+    <div class="nav-item active" id="nav-courses" onclick="switchView('courses')">📖 Học tập</div>
+    <div class="nav-item" id="nav-profile" onclick="switchView('profile')">👤 Tài khoản</div>
+    <button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()">🔧 Chế độ Admin</button>
+  </div>
+  <div class="user-menu" onclick="switchView('profile')">
+    <div class="user-avatar">H</div>
+    <span class="user-name">Học Viên</span>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="main-content">
+  
+  <!-- VIEW 1: COURSES -->
+  <div class="view-container show" id="view-courses">
+    <h1 class="page-title">Khóa học của tôi</h1>
+    <div class="course-grid" id="courseGrid"></div>
+  </div>
+
+  <!-- VIEW 2: LESSON -->
+  <div class="view-container" id="view-lesson">
+    <div style="margin-bottom: 16px; display: flex; gap: 10px; align-items: center;">
+      <button class="btn-outline" onclick="switchView('courses')">← Quay lại danh sách</button>
+      <span style="color: var(--text-muted); font-size: 14px;" id="breadcrumb">Tên khóa học</span>
+    </div>
+    
+    <div class="lesson-layout">
+      <!-- Left: Video & Materials -->
+      <div>
+        <div class="video-section">
+          <div class="video-player" id="videoContainer">
+            <!-- Iframe injected here -->
+          </div>
+          <div class="admin-control" style="position: absolute; top: 16px; right: 16px;">
+            <button class="btn-admin blue" onclick="adminAction('Sửa Video: Nhúng hoặc xóa link YouTube (Chỉ Admin)')">✎ Sửa Video</button>
+          </div>
+        </div>
+        
+        <div class="lesson-info">
+          <div style="display:flex; justify-content:space-between; align-items:start;">
+            <h2 class="lesson-title" id="lessonTitle">Tên bài học</h2>
+            <div class="admin-control">
+              <button class="btn-admin blue" onclick="adminAction('Sửa tiêu đề & nội dung bài học (Chỉ Admin)')">✎ Sửa Bài</button>
+            </div>
+          </div>
+          <p class="lesson-desc" id="lessonDesc">Mô tả chi tiết bài học.</p>
+          
+          <div class="materials-section">
+            <div class="section-head">
+              <span class="materials-title">Tài liệu đính kèm & Hướng dẫn</span>
+              <div class="admin-control">
+                <button class="btn-admin blue" onclick="adminAction('Thêm tài liệu: Thêm link Google Drive, Google Sheet hoặc file tải về (Chỉ Admin)')">+ Thêm tài liệu</button>
+              </div>
+            </div>
+            <div class="materials-list" id="materialsList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Playlist -->
+      <div class="playlist-section">
+        <div class="playlist-header">Nội dung khóa học</div>
+        <div id="playlistContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 3: PROFILE -->
+  <div class="view-container" id="view-profile">
+    <h1 class="page-title">Tài khoản của tôi</h1>
+    <div class="profile-grid">
+      <div class="profile-card">
+        <h3 style="margin-bottom:20px; font-size: 18px;">Thông tin cá nhân</h3>
+        <div class="info-row"><span class="info-label">Email:</span><span class="info-val">hocvien@demo.com</span></div>
+        <div class="info-row"><span class="info-label">Gói đang sở hữu:</span><span class="badge">ULTRA</span></div>
+        <div class="info-row"><span class="info-label">Trạng thái:</span><span style="color:var(--success);font-weight:700;">Đang hoạt động</span></div>
+        <div style="margin-top:30px; text-align:center;">
+          <button class="btn-outline" style="color:var(--danger); border-color:rgba(239,68,68,.3);" onclick="window.location.href='login.html'">Đăng xuất</button>
+        </div>
+      </div>
+      <div class="profile-card">
+        <h3 style="margin-bottom:20px; font-size: 18px;">Lịch sử đơn hàng</h3>
+        <div class="history-item">
+          <div>
+            <div style="font-weight:700;font-size:13px;margin-bottom:6px;color:var(--pl);">MASTER-A893K</div>
+            <div style="font-size:15px;font-weight:600;">GÓI ĐẶC QUYỀN (ULTRA)</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:800;font-size:16px;margin-bottom:6px;">399.000đ</div>
+            <div style="font-size:11px;color:var(--success);font-weight:700;background:rgba(16,185,129,.1);padding:3px 8px;border-radius:4px;display:inline-block;">PAID (Đã thanh toán)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// --- MOCK DATA ---
+const DATA = {
+  courses: [
+    {
+      id: 'c1',
+      title: 'HỆ THỐNG KINH DOANH 1 NGƯỜI (AI Mastery)',
+      instructor: 'Hồ Đức Dũng',
+      progress: 45,
+      thumb: '🚀',
+      chapters: [
+        {
+          title: 'Chương 1: Ứng dụng AI Toàn Diện',
+          lessons: [
+            {
+              id: 'l1',
+              title: 'Bài 1: Sử dụng Mapify lên kế hoạch',
+              duration: '13:49',
+              video: 'https://www.youtube.com/embed/ScMzIvxBSi4', // YouTube link 1 mình
+              desc: 'Hướng dẫn sử dụng Mapify để tạo sơ đồ tư duy (mindmap) bằng AI trong nháy mắt. Rất phù hợp để lên kế hoạch kinh doanh và tự động hóa quy trình.',
+              materials: [
+                { id: 'm1', name: 'Tài liệu hướng dẫn Mindmap (PDF)', icon: '📄', link: '#' },
+                { id: 'm2', name: 'Thư mục Template Mapify (Google Drive)', icon: '📁', link: '#' }
+              ]
+            },
+            {
+              id: 'l2',
+              title: 'Bài 2: Tạo slide với Gamma',
+              duration: '18:22',
+              video: 'https://www.youtube.com/embed/ScMzIvxBSi4',
+              desc: 'Tự động tạo slide bài giảng và thuyết trình chuyên nghiệp bằng Gamma AI.',
+              materials: [
+                { id: 'm3', name: 'File kế hoạch (Google Sheet)', icon: '📊', link: '#' }
+              ]
+            }
+          ]
+        },
+        {
+          title: 'Chương 2: Cài đặt Tool & Tự động hóa',
+          lessons: [
+            {
+              id: 'l3',
+              title: 'Bài 3: Cài đặt Tool Auto',
+              duration: '24:00',
+              video: 'https://www.youtube.com/embed/ScMzIvxBSi4',
+              desc: 'Tải và cài đặt phần mềm Auto để kết nối các luồng công việc.',
+              materials: [
+                { id: 'm4', name: 'Phần mềm Auto v1.0 (File EXE)', icon: '⚙️', link: '#' }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'c2',
+      title: 'Quà tặng 10X AI Automation',
+      instructor: 'Hồ Đức Dũng',
+      progress: 0,
+      thumb: '🎁',
+      chapters: [
+        {
+          title: 'Chương 1: Kho Tài liệu Quà tặng',
+          lessons: [
+            {
+              id: 'l4',
+              title: 'Ebook: Tự học Claude A-Z',
+              duration: '00:00',
+              video: '',
+              desc: 'Trong bài này không có video, bạn hãy tải sách ở phần tài liệu đính kèm bên dưới.',
+              materials: [
+                { id: 'm5', name: 'EBook_Tu_Hoc_Claude.pdf', icon: '📄', link: '#' }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+let currentCourseId = null;
+let currentLessonId = null;
+let isAdmin = false;
+
+// --- INIT & NAVIGATION ---
+function init() {
+  renderCourses();
+}
+
+function switchView(viewId) {
+  document.querySelectorAll('.view-container').forEach(el => el.classList.remove('show'));
+  document.getElementById('view-' + viewId).classList.add('show');
+  
+  document.getElementById('nav-courses').classList.toggle('active', viewId === 'courses' || viewId === 'lesson');
+  document.getElementById('nav-profile').classList.toggle('active', viewId === 'profile');
+}
+
+function toggleAdmin() {
+  isAdmin = !isAdmin;
+  document.getElementById('adminToggle').classList.toggle('active', isAdmin);
+  document.body.classList.toggle('admin-mode', isAdmin);
+  // Re-render things if needed
+}
+
+function adminAction(actionName) {
+  alert("Chức năng dành cho ADMIN:\n▶ " + actionName + "\n\n(Tại đây Admin có thể nhập link YouTube, tải file lên Drive, chèn link Google Sheet, tải file EXE, hoặc xóa tài nguyên hiện tại).");
+}
+
+// --- RENDER COURSES ---
+function renderCourses() {
+  const grid = document.getElementById('courseGrid');
+  grid.innerHTML = DATA.courses.map(c => `
+    <div class="course-card">
+      <div class="course-thumb">${c.thumb}</div>
+      <div class="course-body">
+        <div class="course-title">${c.title}</div>
+        <div class="course-instructor">Giảng viên: ${c.instructor}</div>
+        <div class="course-progress-wrap">
+          <div style="display:flex;justify-content:space-between;">
+            <div class="progress-text">${c.progress}%</div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${c.progress}%"></div></div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn-enter" onclick="openCourse('${c.id}')">Vào học</button>
+          <div class="admin-control" style="flex-shrink:0;">
+             <button class="btn-admin" onclick="event.stopPropagation(); adminAction('Sửa/Xóa Khóa học')">⚙️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// --- RENDER LESSON ---
+function openCourse(courseId) {
+  currentCourseId = courseId;
+  const course = DATA.courses.find(c => c.id === courseId);
+  document.getElementById('breadcrumb').textContent = course.title;
+  
+  // Mặc định mở bài đầu tiên
+  const firstLesson = course.chapters[0].lessons[0];
+  openLesson(courseId, firstLesson.id);
+  
+  // Render Playlist
+  const pl = document.getElementById('playlistContainer');
+  pl.innerHTML = course.chapters.map((chap, cIdx) => `
+    <div class="chapter-block">
+      <div class="chapter-head">
+        <span>${chap.title}</span>
+        <div class="admin-control"><button class="btn-admin" onclick="event.stopPropagation(); adminAction('Thêm bài học mới vào chương này')">+ Bài</button></div>
+      </div>
+      <div class="chapter-list">
+        ${chap.lessons.map(l => `
+          <div class="lesson-item ${l.id === firstLesson.id ? 'active' : ''}" id="pl-item-${l.id}" onclick="openLesson('${courseId}', '${l.id}')">
+            <div>▶ ${l.title}</div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="lesson-duration">${l.duration}</span>
+              <div class="admin-control"><button class="btn-admin" onclick="event.stopPropagation(); adminAction('Xóa bài học này')">✕</button></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  
+  switchView('lesson');
+}
+
+function openLesson(courseId, lessonId) {
+  currentCourseId = courseId;
+  currentLessonId = lessonId;
+  
+  const course = DATA.courses.find(c => c.id === courseId);
+  let lesson = null;
+  course.chapters.forEach(c => {
+    const l = c.lessons.find(x => x.id === lessonId);
+    if(l) lesson = l;
+  });
+  
+  if(!lesson) return;
+  
+  // Update UI Playlist Active state
+  document.querySelectorAll('.lesson-item').forEach(el => el.classList.remove('active'));
+  const activeEl = document.getElementById('pl-item-' + lesson.id);
+  if(activeEl) activeEl.classList.add('active');
+  
+  // Render left column
+  document.getElementById('lessonTitle').textContent = lesson.title;
+  document.getElementById('lessonDesc').textContent = lesson.desc;
+  
+  const vidContainer = document.getElementById('videoContainer');
+  if(lesson.video) {
+    vidContainer.innerHTML = `<iframe src="${lesson.video}" allowfullscreen></iframe>`;
+  } else {
+    vidContainer.innerHTML = `<div style="color:var(--text-muted); font-size: 14px;">(Không có video cho bài học này)</div>`;
+  }
+  
+  const matContainer = document.getElementById('materialsList');
+  if(lesson.materials && lesson.materials.length > 0) {
+    matContainer.innerHTML = lesson.materials.map(m => `
+      <div class="material-item">
+        <div class="mat-info">
+          <span class="mat-icon">${m.icon}</span>
+          <span>${m.name}</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <a href="${m.link}" class="btn-outline">Tải về / Truy cập</a>
+          <div class="admin-control">
+            <button class="btn-admin" onclick="adminAction('Xóa tài liệu này')">Xóa</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    matContainer.innerHTML = `<div style="font-size:13px;color:var(--text-muted);">Không có tài liệu đính kèm.</div>`;
+  }
+}
+
+// Start
+init();
+</script>
+</body>
+</html>
